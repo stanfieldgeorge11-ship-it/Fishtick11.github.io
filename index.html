@@ -1,1 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Block Jump Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      overflow: hidden;
+    }
+    #player {
+      width: 40px;
+      height: 40px;
+      background: cyan;
+      position: absolute;
+      bottom: 50px;
+      left: 100px;
+    }
+    .obstacle {
+      width: 40px;
+      height: 40px;
+      background: red;
+      position: absolute;
+      bottom: 50px;
+      right: -40px;
+    }
+  </style>
+</head>
+<body>
 
+<div id="player"></div>
+
+<script>
+  const player = document.getElementById("player");
+  let isJumping = false;
+  let gravity = 0.9;
+  let position = 0;
+
+  function jump() {
+    if (isJumping) return;
+    let count = 0;
+    let jumpInterval = setInterval(() => {
+      if (count === 15) {
+        clearInterval(jumpInterval);
+        let downInterval = setInterval(() => {
+          if (count === 0) {
+            clearInterval(downInterval);
+            isJumping = false;
+          }
+          position -= 5;
+          count--;
+          position *= gravity;
+          player.style.bottom = 50 + position + "px";
+        }, 20);
+      }
+      position += 20;
+      count++;
+      position *= gravity;
+      player.style.bottom = 50 + position + "px";
+    }, 20);
+    isJumping = true;
+  }
+
+  document.addEventListener("keydown", jump);
+  document.addEventListener("click", jump);
+
+  function createObstacle() {
+    const obstacle = document.createElement("div");
+    obstacle.classList.add("obstacle");
+    document.body.appendChild(obstacle);
+
+    let obstaclePosition = window.innerWidth;
+    obstacle.style.right = obstaclePosition + "px";
+
+    let timer = setInterval(() => {
+      obstaclePosition += 5;
+      obstacle.style.right = obstaclePosition + "px";
+
+      const playerRect = player.getBoundingClientRect();
+      const obsRect = obstacle.getBoundingClientRect();
+
+      if (
+        obsRect.left < playerRect.right &&
+        obsRect.right > playerRect.left &&
+        obsRect.top < playerRect.bottom &&
+        obsRect.bottom > playerRect.top
+      ) {
+        alert("Game Over");
+        clearInterval(timer);
+        location.reload();
+      }
+
+      if (obstaclePosition > window.innerWidth + 40) {
+        clearInterval(timer);
+        obstacle.remove();
+      }
+    }, 20);
+  }
+
+  setInterval(createObstacle, 2000);
+</script>
+
+</body>
+</html>
